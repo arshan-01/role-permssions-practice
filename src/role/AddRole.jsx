@@ -4,19 +4,56 @@ const AddRole = () => {
   const titles = ['Product', 'Order', 'Users', 'Settings', 'Reports', 'Admin', 'Role', 'Permission', 'Profile', 'Logout'];
   const permissions = ['Create', 'Add', 'Delete', 'View'];
 
-  // State to manage the checked state of global checkboxes
-  const [globalChecks, setGlobalChecks] = useState(permissions.reduce((acc, perm) => {
-    acc[perm] = false;
-    return acc;
-  }, {}));
+  // State to manage the checked state of individual checkboxes
+  const [checkedPermissions, setCheckedPermissions] = useState({});
+  const [columnChecked, setColumnChecked] = useState({
+    Create: false,
+    Delete: false,
+    Edit: false,
+    View: false
+  });
 
-  // Function to handle toggling all checkboxes in a column
-  const handleGlobalCheck = (permission) => {
-    const updatedGlobalChecks = {
-      ...globalChecks,
-      [permission]: !globalChecks[permission]
-    };
-    setGlobalChecks(updatedGlobalChecks);
+  // Function to toggle individual permission checkboxes
+  const handlePermissionToggle = (title, permission) => {
+    const isChecked = checkedPermissions[title]?.[permission] ?? false;
+    setCheckedPermissions(prevState => ({
+      ...prevState,
+      [title]: {
+        ...prevState[title],
+        [permission]: !isChecked
+      }
+    }));
+  };
+
+  // Function to toggle entire column checkboxes
+  const handleColumnToggle = (permission) => {
+    const allChecked = !columnChecked[permission];
+
+    setColumnChecked(prevState => ({
+      ...prevState,
+      [permission]: allChecked
+    }));
+
+    const updatedPermissions = {};
+    titles.forEach(title => {
+      updatedPermissions[title] = {
+        ...checkedPermissions[title],
+        [permission]: allChecked
+      };
+    });
+
+    setCheckedPermissions(updatedPermissions);
+  };
+
+  const handleAddRole = () => {
+    // Convert checkedPermissions object into an array of objects
+    const roles = Object.keys(checkedPermissions).map(title => ({
+      title,
+      ...checkedPermissions[title]
+    }));
+
+    // Do something with the roles array (e.g., send it to backend, log it)
+    console.log("Roles added:", roles);
   };
 
   return (
@@ -29,6 +66,7 @@ const AddRole = () => {
           className="border rounded-md p-2 mr-2 w-full sm:w-1/3"
         />
         <button
+          onClick={handleAddRole}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
         >
           Add Role
@@ -52,11 +90,11 @@ const AddRole = () => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={globalChecks[permission]}
-                    onChange={() => handleGlobalCheck(permission)}
-                    className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                    checked={columnChecked[permission]}
+                    onChange={() => handleColumnToggle(permission)}
+                    className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out mr-2"
                   />
-                  <span className="ml-2">{permission}</span>
+                  {permission}
                 </div>
               </th>
             ))}
@@ -70,8 +108,9 @@ const AddRole = () => {
                 <td key={permission} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <input
                     type="checkbox"
+                    checked={checkedPermissions[title]?.[permission] ?? false}
+                    onChange={() => handlePermissionToggle(title, permission)}
                     className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                    checked={globalChecks[permission]}
                   />
                 </td>
               ))}
@@ -79,6 +118,14 @@ const AddRole = () => {
           ))}
         </tbody>
       </table>
+      <div className="mt-4 flex justify-end">
+        <button
+          onClick={handleAddRole}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+        >
+          Add Role
+        </button>
+      </div>
     </div>
   );
 };
