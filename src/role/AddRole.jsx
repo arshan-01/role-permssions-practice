@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 
 const AddRole = () => {
+    const [roleTitle, setRoleTitle] = useState('');
+    // get role value 
+    const handleRoleTitleChange = (e) => {
+        setRoleTitle(e.target.value);
+    };
   const titles = ['Product', 'Order', 'Users', 'Settings', 'Reports', 'Admin', 'Role', 'Permission', 'Profile', 'Logout'];
   const permissions = ['Create', 'Add', 'Delete', 'View'];
 
@@ -53,7 +58,10 @@ const AddRole = () => {
     }));
 
     // Do something with the roles array (e.g., send it to backend, log it)
-    console.log("Roles added:", roles);
+    console.log("Roles added:", {
+        Role : roleTitle,
+        permissions : roles
+    });
   };
 
   return (
@@ -61,7 +69,8 @@ const AddRole = () => {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          value=""
+          value={roleTitle}
+            onChange={handleRoleTitleChange}
           placeholder="Enter role title"
           className="border rounded-md p-2 mr-2 w-full sm:w-1/3"
         />
